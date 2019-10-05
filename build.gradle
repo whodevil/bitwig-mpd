@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        url 'https://maven.bitwig.com'
+    }
+}
+
+dependencies {
+    implementation 'com.bitwig:extension-api:+'
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
