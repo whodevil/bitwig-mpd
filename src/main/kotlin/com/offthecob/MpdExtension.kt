@@ -44,8 +44,10 @@ class MpdExtension(definition: MpdExtensionDefinition, host: ControllerHost) : C
      */
     private fun onMidi0(msg: ShortMidiMessage) {
         val host = host
-        if (msg.isNoteOn) {
-            host.println("note!")
+        when {
+            msg.isNoteOn -> host.println("noteon!")
+            msg.isControlChange -> host.println("cc!")
+            msg.isNoteOff -> host.println("noteoff!")
         }
     }
 
@@ -54,15 +56,12 @@ class MpdExtension(definition: MpdExtensionDefinition, host: ControllerHost) : C
      */
     private fun onSysex0(data: String) {
         // MMC Transport Controls:
-        if (data == "f07f7f0605f7")
-            mTransport!!.rewind()
-        else if (data == "f07f7f0604f7")
-            mTransport!!.fastForward()
-        else if (data == "f07f7f0601f7")
-            mTransport!!.stop()
-        else if (data == "f07f7f0602f7")
-            mTransport!!.play()
-        else if (data == "f07f7f0606f7")
-            mTransport!!.record()
+        when (data) {
+            "f07f7f0605f7" -> mTransport!!.rewind()
+            "f07f7f0604f7" -> mTransport!!.fastForward()
+            "f07f7f0601f7" -> mTransport!!.stop()
+            "f07f7f0602f7" -> mTransport!!.play()
+            "f07f7f0606f7" -> mTransport!!.record()
+        }
     }
 }
