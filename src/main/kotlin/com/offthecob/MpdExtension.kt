@@ -12,26 +12,27 @@ class MpdExtension(definition: MpdExtensionDefinition, host: ControllerHost) : C
     private var mTransport: Transport? = null
 
     override fun init() {
-        val host = host
-
         mTransport = host.createTransport()
-        host.getMidiInPort(0).setMidiCallback(object: ShortMidiMessageReceivedCallback{
+        val trackHandler = TrackHandler(
+                host.createTrackBank(4, 2, 4),
+                host.createEffectTrackBank(2, 2),
+                host.createCursorTrack("MPD_TRACK_ID", "Cursor Track", 0, 0, true))
+        val midiHandler = MidiHandler(host, host.createApplication(), trackHandler)
+
+
+        host.getMidiInPort(0).setMidiCallback(object : ShortMidiMessageReceivedCallback {
             override fun midiReceived(msg: ShortMidiMessage?) {
                 if (msg != null) {
-                    onMidi0(msg)
+                    midiHandler.handleMessage(msg)
                 }
             }
         })
-        host.getMidiInPort(0).setSysexCallback { data: String -> onSysex0(data) }
 
-        // TODO: Perform your driver initialization here.
-        // For now just show a popup notification for verification that it is running.
+        host.getMidiInPort(0).setSysexCallback { data: String -> onSysex0(data) }
         host.showPopupNotification("mpd Initialized")
     }
 
     override fun exit() {
-        // TODO: Perform any cleanup once the driver exits
-        // For now just show a popup notification for verification that it is no longer running.
         host.showPopupNotification("mpd Exited")
     }
 
@@ -39,22 +40,9 @@ class MpdExtension(definition: MpdExtensionDefinition, host: ControllerHost) : C
         // TODO Send any updates you need here.
     }
 
-    /**
-     * Called when we receive short MIDI message on port 0.
-     */
-    private fun onMidi0(msg: ShortMidiMessage) {
-        val host = host
-        when {
-            msg.isNoteOn -> host.println("noteon!")
-            msg.isControlChange -> host.println("cc!")
-            msg.isNoteOff -> host.println("noteoff!")
-        }
-    }
-
-    /**
-     * Called when we receive sysex MIDI message on port 0.
-     */
     private fun onSysex0(data: String) {
+
+        host.println("sysex: ${data}")
         // MMC Transport Controls:
         when (data) {
             "f07f7f0605f7" -> mTransport!!.rewind()
