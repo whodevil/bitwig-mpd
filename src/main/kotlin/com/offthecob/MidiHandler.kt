@@ -15,10 +15,11 @@ class MidiHandler(
     fun handleNote(note: Int) {
         host.println("noteon! ${note}")
         when (note) {
-            36 -> trackHandler.bankUp()
-            37 -> trackHandler.bankDown()
-            38 -> application.arrowKeyUp()
-            39 -> application.arrowKeyDown()
+            // Bank A
+            36 -> trackHandler.scrollBackward()
+            37 -> trackHandler.bankUp()
+            38 -> trackHandler.bankDown()
+            39 -> trackHandler.scrollForward()
 
             40 -> trackHandler.select(0)
             41 -> trackHandler.select(1)
@@ -27,14 +28,31 @@ class MidiHandler(
 
             44 -> trackHandler.effectBankUp()
             45 -> trackHandler.effectBankDown()
-
             46 -> trackHandler.trackSendBankUp()
             47 -> trackHandler.trackSendBankDown()
 
             48 -> trackHandler.toggleArmed()
             49 -> trackHandler.toggleSolo()
             50 -> trackHandler.toggleMute()
-            51 -> host.println("TBD")
+            51 -> application.nextPanelLayout()
+
+            // Bank B
+            52 -> trackHandler.playOrRecordClip(3, 0)
+            53 -> trackHandler.playOrRecordClip(3, 1)
+            54 -> trackHandler.playOrRecordClip(3, 2)
+            55 -> trackHandler.playOrRecordClip(3, 3)
+            56 -> trackHandler.playOrRecordClip(2, 0)
+            57 -> trackHandler.playOrRecordClip(2, 1)
+            58 -> trackHandler.playOrRecordClip(2, 2)
+            59 -> trackHandler.playOrRecordClip(2, 3)
+            60 -> trackHandler.playOrRecordClip(1, 0)
+            61 -> trackHandler.playOrRecordClip(1, 1)
+            62 -> trackHandler.playOrRecordClip(1, 2)
+            63 -> trackHandler.playOrRecordClip(1, 3)
+            64 -> trackHandler.playOrRecordClip(0, 0)
+            65 -> trackHandler.playOrRecordClip(0, 1)
+            66 -> trackHandler.playOrRecordClip(0, 2)
+            67 -> trackHandler.playOrRecordClip(0, 3)
         }
     }
 
@@ -42,7 +60,6 @@ class MidiHandler(
         when {
             msg.isNoteOn -> handleNote(msg.data1)
             msg.isControlChange -> handleControlChange(msg.data1, msg.data2)
-            msg.isNoteOff -> host.println("noteoff!")
         }
     }
 
@@ -65,7 +82,6 @@ class MidiHandler(
             35 -> trackHandler.trackSend(2, 1, value)
             36 -> trackHandler.trackSend(3, 0, value)
             37 -> trackHandler.trackSend(3, 1, value)
-            64 -> trackHandler.launchOrRecord(1, 1)
         }
     }
 

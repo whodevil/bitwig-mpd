@@ -1,8 +1,6 @@
 package com.offthecob
 
-import com.bitwig.extension.controller.api.CursorTrack
-import com.bitwig.extension.controller.api.Track
-import com.bitwig.extension.controller.api.TrackBank
+import com.bitwig.extension.controller.api.*
 
 class TrackHandler(private val trackBank: TrackBank, private val effectTrackBank: TrackBank, private val cursorTrack: CursorTrack) {
 
@@ -39,7 +37,23 @@ class TrackHandler(private val trackBank: TrackBank, private val effectTrackBank
         val volume = track.volume()
         volume.markInterested()
         volume.setIndication(true)
+        markClips(track.clipLauncherSlotBank())
         markTrackSends(track)
+    }
+
+    private fun markClips(clipBank: ClipLauncherSlotBank) {
+        clipBank.setIndication(true)
+        var i = 0
+        while(i<clipBank.sizeOfBank) {
+            val clip = clipBank.getItemAt(i)
+            clip.hasContent().markInterested()
+            clip.isPlaying.markInterested()
+            clip.isPlaybackQueued.markInterested()
+            clip.isRecording.markInterested()
+            clip.isStopQueued.markInterested()
+            clip.isRecordingQueued.markInterested()
+            i++
+        }
     }
 
     private fun markTrackSends(track: Track) {
@@ -116,7 +130,25 @@ class TrackHandler(private val trackBank: TrackBank, private val effectTrackBank
         }
     }
 
-    fun launchOrRecord(trackNumber: Int, scene: Int) {
-        trackBank.getItemAt(trackNumber).clipLauncherSlotBank().select(scene)
+    fun scrollForward() {
+        trackBank.sceneBank().scrollForwards()
+    }
+
+    fun scrollBackward() {
+        trackBank.sceneBank().scrollBackwards()
+    }
+
+    fun playOrRecordClip(trackNumber: Int, clipIndex: Int) {
+        val track = trackBank.getItemAt(trackNumber)
+        val clip = track.clipLauncherSlotBank().getItemAt(clipIndex)
+
+        if(!clip.hasContent().get()) {
+            track.arm().set(true)
+            clip.launch()
+        } else if (clip.isRecording.get()||!clip.isPlaying.get()) {
+            clip.launch()
+        } else {
+            track.stop()
+        }
     }
 }
