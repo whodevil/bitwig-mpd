@@ -115,4 +115,8 @@ class TrackHandler(private val trackBank: TrackBank, private val effectTrackBank
             i++
         }
     }
+
+    fun launchOrRecord(trackNumber: Int, scene: Int) {
+        trackBank.getItemAt(trackNumber).clipLauncherSlotBank().select(scene)
+    }
 }

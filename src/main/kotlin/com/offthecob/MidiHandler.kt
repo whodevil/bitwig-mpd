@@ -3,8 +3,15 @@ package com.offthecob
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.api.Application
 import com.bitwig.extension.controller.api.ControllerHost
+import com.bitwig.extension.controller.api.Transport
 
-class MidiHandler(private val host: ControllerHost, private val application: Application, private val trackHandler: TrackHandler) {
+class MidiHandler(
+        private val host: ControllerHost,
+        private val application: Application,
+        private val trackHandler: TrackHandler,
+        private val navigation: Navigation,
+        private val transport: Transport) {
+
     fun handleNote(note: Int) {
         host.println("noteon! ${note}")
         when (note) {
@@ -58,6 +65,20 @@ class MidiHandler(private val host: ControllerHost, private val application: App
             35 -> trackHandler.trackSend(2, 1, value)
             36 -> trackHandler.trackSend(3, 0, value)
             37 -> trackHandler.trackSend(3, 1, value)
+            64 -> trackHandler.launchOrRecord(1, 1)
+        }
+    }
+
+    fun handleSysexMessage(data: String) {
+        host.println("sysex: ${data}")
+        // MMC Transport Controls:
+        when (data) {
+            MPD_BANK_B -> navigation.toggleClipLauncher()
+            REWIND -> transport.rewind()
+            FAST_FORWARD -> transport.fastForward()
+            STOP -> transport.stop()
+            PLAY -> transport.play()
+            RECORD -> transport.record()
         }
     }
 }
