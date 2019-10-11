@@ -2,11 +2,33 @@ package com.offthecob
 
 import com.bitwig.extension.controller.api.*
 
-class TrackHandler(private val trackBank: TrackBank, private val effectTrackBank: TrackBank, private val cursorTrack: CursorTrack) {
+class TrackHandler(
+        private val trackBank: TrackBank,
+        private val effectTrackBank: TrackBank,
+        private val cursorTrack: CursorTrack,
+        private val cursorDevice: PinnableCursorDevice,
+        private val remoteControlsPage: CursorRemoteControlsPage) {
 
     init {
         initTracks()
         initEffectTracks()
+        initCursorTrack()
+        initRemoteControlsPage()
+        cursorDevice.isEnabled.markInterested()
+        cursorDevice.isWindowOpen.markInterested()
+    }
+
+    private fun initRemoteControlsPage() {
+        var i = 0
+        while(i < remoteControlsPage.parameterCount) {
+            val parameter = remoteControlsPage.getParameter(i)
+            parameter.markInterested()
+            parameter.setIndication(true)
+            i++
+        }
+    }
+
+    private fun initCursorTrack() {
         cursorTrack.mute().markInterested()
         cursorTrack.solo().markInterested()
         cursorTrack.arm().markInterested()
@@ -150,5 +172,13 @@ class TrackHandler(private val trackBank: TrackBank, private val effectTrackBank
         } else {
             track.stop()
         }
+    }
+
+    fun deviceKnob(parameterNumber: Int, value: Int) {
+        remoteControlsPage.getParameter(parameterNumber).set(value, 128)
+    }
+
+    fun advanceDevicePage() {
+        remoteControlsPage.selectNextPage(true)
     }
 }
