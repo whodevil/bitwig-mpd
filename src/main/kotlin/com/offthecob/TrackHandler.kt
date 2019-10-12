@@ -1,92 +1,40 @@
 package com.offthecob
 
 import com.bitwig.extension.controller.api.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TrackHandler(
-        private val trackBank: TrackBank,
-        private val effectTrackBank: TrackBank,
-        private val cursorTrack: CursorTrack,
-        private val cursorDevice: PinnableCursorDevice,
-        private val remoteControlsPage: CursorRemoteControlsPage) {
+@Singleton
+class TrackHandler @Inject constructor(host: ControllerHost) {
+
+    private val trackBank: TrackBank = host.createTrackBank(4, 2, 4)
+    private val effectTrackBank: TrackBank = host.createEffectTrackBank(2, 2)
+
+    private val cursorTrack: CursorTrack = host.createCursorTrack("MPD_TRACK_ID", "Cursor Track", 0, 0, true)
+    private val knobCursorDevice: PinnableCursorDevice =
+            cursorTrack.createCursorDevice(
+                    "MPD_CURSOR_DEVICE_KNOBS",
+                    "Cursor Device Knobs",
+                    0,
+                    CursorDeviceFollowMode.FOLLOW_SELECTION)
+    private val knobRemoteControlPage: CursorRemoteControlsPage = knobCursorDevice.createCursorRemoteControlsPage(8)
+
+    private val sliderCursorDevice: PinnableCursorDevice =
+            cursorTrack.createCursorDevice(
+                    "MPD_CURSOR_DEVICE_SLIDERS",
+                    "Cursor Device Sliders",
+                    0,
+                    CursorDeviceFollowMode.FIRST_AUDIO_EFFECT)
+    private val sliderRemoteControlPage: CursorRemoteControlsPage = sliderCursorDevice.createCursorRemoteControlsPage(6)
 
     init {
-        initTracks()
-        initEffectTracks()
-        initCursorTrack()
-        initRemoteControlsPage()
-        cursorDevice.isEnabled.markInterested()
-        cursorDevice.isWindowOpen.markInterested()
-    }
-
-    private fun initRemoteControlsPage() {
-        var i = 0
-        while(i < remoteControlsPage.parameterCount) {
-            val parameter = remoteControlsPage.getParameter(i)
-            parameter.markInterested()
-            parameter.setIndication(true)
-            i++
-        }
-    }
-
-    private fun initCursorTrack() {
-        cursorTrack.mute().markInterested()
-        cursorTrack.solo().markInterested()
-        cursorTrack.arm().markInterested()
-        cursorTrack.makeVisibleInArranger()
-        cursorTrack.makeVisibleInMixer()
-    }
-
-    private fun initEffectTracks() {
-        var i = 0
-        while (i < effectTrackBank.sizeOfBank) {
-            val effectTrack = effectTrackBank.getItemAt(i)
-            val volume = effectTrack.volume()
-            volume.markInterested()
-            volume.setIndication(true)
-            i++
-        }
-    }
-
-    private fun initTracks() {
-        var i = 0
-        while (i < trackBank.sizeOfBank) {
-            markTrackInterested(trackBank.getItemAt(i))
-            i++
-        }
-    }
-
-    private fun markTrackInterested(track: Track) {
-        val volume = track.volume()
-        volume.markInterested()
-        volume.setIndication(true)
-        markClips(track.clipLauncherSlotBank())
-        markTrackSends(track)
-    }
-
-    private fun markClips(clipBank: ClipLauncherSlotBank) {
-        clipBank.setIndication(true)
-        var i = 0
-        while(i<clipBank.sizeOfBank) {
-            val clip = clipBank.getItemAt(i)
-            clip.hasContent().markInterested()
-            clip.isPlaying.markInterested()
-            clip.isPlaybackQueued.markInterested()
-            clip.isRecording.markInterested()
-            clip.isStopQueued.markInterested()
-            clip.isRecordingQueued.markInterested()
-            i++
-        }
-    }
-
-    private fun markTrackSends(track: Track) {
-        var j = 0
-        val sendBank = track.sendBank()
-        while (j < sendBank.sizeOfBank) {
-            val send = sendBank.getItemAt(j)
-            send.markInterested()
-            send.setIndication(true)
-            j++
-        }
+        initTracks(trackBank)
+        initEffectTracks(effectTrackBank)
+        initCursorTrack(cursorTrack)
+        initRemoteControlsPage(knobRemoteControlPage)
+        initRemoteControlsPage(sliderRemoteControlPage)
+        initCursorDevice(knobCursorDevice)
+        initCursorDevice(sliderCursorDevice)
     }
 
     fun select(i: Int) {
@@ -164,21 +112,53 @@ class TrackHandler(
         val track = trackBank.getItemAt(trackNumber)
         val clip = track.clipLauncherSlotBank().getItemAt(clipIndex)
 
-        if(!clip.hasContent().get()) {
+        if (!clip.hasContent().get()) {
             track.arm().set(true)
             clip.launch()
-        } else if (clip.isRecording.get()||!clip.isPlaying.get()) {
+        } else if (clip.isRecording.get() || !clip.isPlaying.get()) {
             clip.launch()
         } else {
             track.stop()
         }
     }
 
-    fun deviceKnob(parameterNumber: Int, value: Int) {
-        remoteControlsPage.getParameter(parameterNumber).set(value, 128)
+    fun advanceKnobCursorDevice() {
+        advanceCursorDevice(knobCursorDevice)
     }
 
-    fun advanceDevicePage() {
-        remoteControlsPage.selectNextPage(true)
+    fun advanceSliderCursorDevice() {
+        advanceCursorDevice(sliderCursorDevice)
+    }
+
+    private fun advanceCursorDevice(cursorDevice: PinnableCursorDevice) {
+        if (cursorDevice.hasNext().get()) {
+            cursorDevice.selectNext()
+        } else {
+            cursorDevice.selectFirst()
+        }
+    }
+
+    fun deviceKnob(parameterNumber: Int, value: Int) {
+        knobRemoteControlPage.getParameter(parameterNumber).set(value, 128)
+    }
+
+    fun advanceKnobDevicePage() {
+        knobRemoteControlPage.selectNextPage(true)
+    }
+
+    fun advanceSliderDevicePage() {
+        sliderRemoteControlPage.selectNextPage(true)
+    }
+
+    fun deviceSlider(slider: Int, value: Int) {
+        sliderRemoteControlPage.getParameter(slider).set(value, 128)
+    }
+
+    fun enableKnobDeviceToggle() {
+        knobCursorDevice.isEnabled.toggle()
+    }
+
+    fun enableSliderDeviceToggle() {
+        sliderCursorDevice.isEnabled.toggle()
     }
 }

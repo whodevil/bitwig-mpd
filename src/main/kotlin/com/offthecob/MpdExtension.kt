@@ -4,22 +4,14 @@ import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.callback.ShortMidiMessageReceivedCallback
 import com.bitwig.extension.controller.ControllerExtension
 import com.bitwig.extension.controller.api.ControllerHost
-import com.bitwig.extension.controller.api.CursorDeviceFollowMode
+import com.google.inject.Guice
 
 
 class MpdExtension(definition: MpdExtensionDefinition, host: ControllerHost) : ControllerExtension(definition, host) {
 
     override fun init() {
-        val navigation = Navigation(host.createArranger())
-        val cursorTrack = host.createCursorTrack("MPD_TRACK_ID", "Cursor Track", 0, 0, true)
-        val cursorDevice = cursorTrack.createCursorDevice("MPD_CURSOR_DEVICE", "Cursor Device", 0, CursorDeviceFollowMode.FOLLOW_SELECTION)
-        val trackHandler = TrackHandler(
-                host.createTrackBank(4, 2, 4),
-                host.createEffectTrackBank(2, 2),
-                cursorTrack,
-                cursorDevice,
-                cursorDevice.createCursorRemoteControlsPage(14))
-        val midiHandler = MidiHandler(host, host.createApplication(), trackHandler, navigation, host.createTransport())
+        val injector = Guice.createInjector(MpdModule(host))
+        val midiHandler = injector.getInstance(MidiHandler::class.java)
 
         host.getMidiInPort(0).setMidiCallback(object : ShortMidiMessageReceivedCallback {
             override fun midiReceived(msg: ShortMidiMessage?) {

@@ -8,6 +8,8 @@ const val FAST_FORWARD: String = "f07f7f0604f7"
 const val STOP: String = "f07f7f0601f7"
 const val PLAY: String = "f07f7f0602f7"
 const val RECORD: String = "f07f7f0606f7"
+const val PREVIEW_PRESS: String = "f04700684000021001f7"
+const val PREVIEW_RELEASE: String = "f04700684000021000f7"
 
 const val SLIDER_1: Int = 16
 const val SLIDER_2: Int = 17

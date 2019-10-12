@@ -1,23 +1,26 @@
 package com.offthecob
 
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
-import com.bitwig.extension.controller.api.Application
 import com.bitwig.extension.controller.api.ControllerHost
 import com.bitwig.extension.controller.api.Transport
+import com.google.inject.Inject
+import com.offthecob.banks.BankA
+import com.offthecob.banks.BankB
+import com.offthecob.banks.BankC
+import com.offthecob.cc.DeviceCc
+import com.offthecob.cc.VolumeTrackSendsCc
 
-enum class Mode {
-    VolumeSend,
-    Device
-}
 
-class MidiHandler(
+class MidiHandler @Inject constructor(
         private val host: ControllerHost,
-        private val application: Application,
-        private val trackHandler: TrackHandler,
+        private val bankA: BankA,
+        private val bankB: BankB,
+        private val bankC: BankC,
+        private val volumeTrackSendsCc: VolumeTrackSendsCc,
+        private val deviceCc: DeviceCc,
         private val navigation: Navigation,
-        private val transport: Transport) {
-
-    var mode: Mode = Mode.VolumeSend
+        private val transport: Transport,
+        private val mode: Mode) {
 
     fun handleMessage(msg: ShortMidiMessage) {
         when {
@@ -28,93 +31,18 @@ class MidiHandler(
 
     private fun handleNote(note: Int) {
         host.println("noteon! ${note}")
-        when (note) {
-            // Bank A
-            36 -> trackHandler.scrollBackward()
-            37 -> trackHandler.bankUp()
-            38 -> trackHandler.bankDown()
-            39 -> trackHandler.scrollForward()
-            40 -> trackHandler.select(0)
-            41 -> trackHandler.select(1)
-            42 -> trackHandler.select(2)
-            43 -> trackHandler.select(3)
-            44 -> trackHandler.effectBankUp()
-            45 -> trackHandler.effectBankDown()
-            46 -> trackHandler.trackSendBankUp()
-            47 -> trackHandler.trackSendBankDown()
-            48 -> trackHandler.toggleArmed()
-            49 -> trackHandler.toggleSolo()
-            50 -> trackHandler.toggleMute()
-            51 -> application.nextPanelLayout()
-
-            // Bank B
-            52 -> trackHandler.playOrRecordClip(3, 0)
-            53 -> trackHandler.playOrRecordClip(3, 1)
-            54 -> trackHandler.playOrRecordClip(3, 2)
-            55 -> trackHandler.playOrRecordClip(3, 3)
-            56 -> trackHandler.playOrRecordClip(2, 0)
-            57 -> trackHandler.playOrRecordClip(2, 1)
-            58 -> trackHandler.playOrRecordClip(2, 2)
-            59 -> trackHandler.playOrRecordClip(2, 3)
-            60 -> trackHandler.playOrRecordClip(1, 0)
-            61 -> trackHandler.playOrRecordClip(1, 1)
-            62 -> trackHandler.playOrRecordClip(1, 2)
-            63 -> trackHandler.playOrRecordClip(1, 3)
-            64 -> trackHandler.playOrRecordClip(0, 0)
-            65 -> trackHandler.playOrRecordClip(0, 1)
-            66 -> trackHandler.playOrRecordClip(0, 2)
-            67 -> trackHandler.playOrRecordClip(0, 3)
-
-            // Bank C
-            68 -> trackHandler.advanceDevicePage()
+        when {
+            bankA.isBank(note) -> bankA.handle(note)
+            bankB.isBank(note) -> bankB.handle(note)
+            bankC.isBank(note) -> bankC.handle(note)
         }
     }
 
     private fun handleControlChange(cc: Int, value: Int) {
         host.println("cc: ${cc} ${value}")
-        when(mode) {
-            Mode.VolumeSend -> volumeTrackSends(cc, value)
-            Mode.Device -> deviceControlChange(cc, value)
-        }
-    }
-
-    private fun deviceControlChange(cc: Int, value: Int) {
-        when (cc) {
-            KNOB_1 -> trackHandler.deviceKnob(0, value)
-            KNOB_2 -> trackHandler.deviceKnob(1, value)
-            KNOB_3 -> trackHandler.deviceKnob(2, value)
-            KNOB_4 -> trackHandler.deviceKnob(3, value)
-            KNOB_5 -> trackHandler.deviceKnob(4, value)
-            KNOB_6 -> trackHandler.deviceKnob(5, value)
-            KNOB_7 -> trackHandler.deviceKnob(6, value)
-            KNOB_8 -> trackHandler.deviceKnob(7, value)
-
-            SLIDER_1 -> trackHandler.deviceKnob(8, value)
-            SLIDER_2 -> trackHandler.deviceKnob(9, value)
-            SLIDER_3 -> trackHandler.deviceKnob(10, value)
-            SLIDER_4 -> trackHandler.deviceKnob(11, value)
-            SLIDER_5 -> trackHandler.deviceKnob(12, value)
-            SLIDER_6 -> trackHandler.deviceKnob(13, value)
-        }
-    }
-
-    private fun volumeTrackSends(cc: Int, value: Int) {
-        when (cc) {
-            KNOB_1 -> trackHandler.trackSend(0, 0, value)
-            KNOB_2 -> trackHandler.trackSend(0, 1, value)
-            KNOB_3 -> trackHandler.trackSend(1, 0, value)
-            KNOB_4 -> trackHandler.trackSend(1, 1, value)
-            KNOB_5 -> trackHandler.trackSend(2, 0, value)
-            KNOB_6 -> trackHandler.trackSend(2, 1, value)
-            KNOB_7 -> trackHandler.trackSend(3, 0, value)
-            KNOB_8 -> trackHandler.trackSend(3, 1, value)
-
-            SLIDER_1 -> trackHandler.volume(0, value)
-            SLIDER_2 -> trackHandler.volume(1, value)
-            SLIDER_3 -> trackHandler.volume(2, value)
-            SLIDER_4 -> trackHandler.volume(3, value)
-            SLIDER_5 -> trackHandler.effectTrackVolume(0, value)
-            SLIDER_6 -> trackHandler.effectTrackVolume(1, value)
+        when (mode.knobSlider()) {
+            KnobSlider.VolumeSend -> volumeTrackSendsCc.cc(cc, value)
+            KnobSlider.Device -> deviceCc.cc(cc, value)
         }
     }
 
@@ -122,17 +50,20 @@ class MidiHandler(
         host.println("sysex: ${data}")
         // MMC Transport Controls:
         when (data) {
-            MPD_BAND_A -> mode = Mode.VolumeSend
+            MPD_BAND_A -> mode.volumeSends()
             MPD_BANK_B -> {
-                mode = Mode.VolumeSend
+                mode.volumeSends()
                 navigation.toggleClipLauncher()
             }
-            MPD_BANK_C -> mode = Mode.Device
+            MPD_BANK_C -> mode.device()
             REWIND -> transport.rewind()
             FAST_FORWARD -> transport.fastForward()
             STOP -> transport.stop()
             PLAY -> transport.play()
             RECORD -> transport.record()
+            PREVIEW_PRESS -> mode.previewPressed()
+            PREVIEW_RELEASE -> mode.previewRelease()
         }
     }
 }
+
