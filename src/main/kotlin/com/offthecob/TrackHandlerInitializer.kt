@@ -59,6 +59,7 @@ private fun markClips(clipBank: ClipLauncherSlotBank) {
         clip.isRecording.markInterested()
         clip.isStopQueued.markInterested()
         clip.isRecordingQueued.markInterested()
+        clip.sceneIndex().markInterested()
         i++
     }
 }

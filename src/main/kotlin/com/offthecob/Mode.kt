@@ -38,6 +38,10 @@ class Mode @Inject constructor(private val host: ControllerHost) {
         preview = Preview.Released
     }
 
+    fun previewButton(): Preview {
+        return preview
+    }
+
     private var knobSliderMode: KnobSlider = KnobSlider.VolumeSend
     private var preview: Preview = Preview.Released
 

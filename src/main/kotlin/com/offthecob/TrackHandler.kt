@@ -108,20 +108,6 @@ class TrackHandler @Inject constructor(host: ControllerHost) {
         trackBank.sceneBank().scrollBackwards()
     }
 
-    fun playOrRecordClip(trackNumber: Int, clipIndex: Int) {
-        val track = trackBank.getItemAt(trackNumber)
-        val clip = track.clipLauncherSlotBank().getItemAt(clipIndex)
-
-        if (!clip.hasContent().get()) {
-            track.arm().set(true)
-            clip.launch()
-        } else if (clip.isRecording.get() || !clip.isPlaying.get()) {
-            clip.launch()
-        } else {
-            track.stop()
-        }
-    }
-
     fun advanceKnobCursorDevice() {
         advanceCursorDevice(knobCursorDevice)
     }
@@ -160,5 +146,12 @@ class TrackHandler @Inject constructor(host: ControllerHost) {
 
     fun enableSliderDeviceToggle() {
         sliderCursorDevice.isEnabled.toggle()
+    }
+
+    fun clip(trackNumber: Int, clipIndex: Int, function: (clip: ClipLauncherSlot, track: Track) -> Unit) {
+        val track = trackBank.getItemAt(trackNumber)
+        val clipLauncherSlotBank = track.clipLauncherSlotBank()
+        val clip = clipLauncherSlotBank.getItemAt(clipIndex)
+        function(clip, track)
     }
 }
