@@ -108,44 +108,12 @@ class TrackHandler @Inject constructor(host: ControllerHost) {
         trackBank.sceneBank().scrollBackwards()
     }
 
-    fun advanceKnobCursorDevice() {
-        advanceCursorDevice(knobCursorDevice)
+    fun slider(function: (sliderDevice: PinnableCursorDevice, cursorRemoteControl: CursorRemoteControlsPage)->Unit) {
+        function(sliderCursorDevice, sliderRemoteControlPage)
     }
 
-    fun advanceSliderCursorDevice() {
-        advanceCursorDevice(sliderCursorDevice)
-    }
-
-    private fun advanceCursorDevice(cursorDevice: PinnableCursorDevice) {
-        if (cursorDevice.hasNext().get()) {
-            cursorDevice.selectNext()
-        } else {
-            cursorDevice.selectFirst()
-        }
-    }
-
-    fun deviceKnob(parameterNumber: Int, value: Int) {
-        knobRemoteControlPage.getParameter(parameterNumber).set(value, 128)
-    }
-
-    fun advanceKnobDevicePage() {
-        knobRemoteControlPage.selectNextPage(true)
-    }
-
-    fun advanceSliderDevicePage() {
-        sliderRemoteControlPage.selectNextPage(true)
-    }
-
-    fun deviceSlider(slider: Int, value: Int) {
-        sliderRemoteControlPage.getParameter(slider).set(value, 128)
-    }
-
-    fun enableKnobDeviceToggle() {
-        knobCursorDevice.isEnabled.toggle()
-    }
-
-    fun enableSliderDeviceToggle() {
-        sliderCursorDevice.isEnabled.toggle()
+    fun knob(function: (sliderDevice: PinnableCursorDevice, cursorRemoteControl: CursorRemoteControlsPage)->Unit) {
+        function(knobCursorDevice, knobRemoteControlPage)
     }
 
     fun clip(trackNumber: Int, clipIndex: Int, function: (clip: ClipLauncherSlot, track: Track) -> Unit) {
