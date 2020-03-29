@@ -4,6 +4,7 @@ import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.api.ControllerHost
 import com.bitwig.extension.controller.api.Transport
 import com.google.inject.Inject
+import offthecob.common.MidiHandler
 import offthecob.mpd.banks.BankA
 import offthecob.mpd.banks.BankB
 import offthecob.mpd.banks.BankC
@@ -11,7 +12,7 @@ import offthecob.mpd.cc.DeviceCc
 import offthecob.mpd.cc.VolumeTrackSendsCc
 
 
-class MidiHandler @Inject constructor(
+class MpdMidiHandler @Inject constructor(
         private val host: ControllerHost,
         private val bankA: BankA,
         private val bankB: BankB,
@@ -20,9 +21,9 @@ class MidiHandler @Inject constructor(
         private val deviceCc: DeviceCc,
         private val navigation: Navigation,
         private val transport: Transport,
-        private val mode: Mode) {
+        private val mode: Mode) : MidiHandler {
 
-    fun handleMessage(msg: ShortMidiMessage) {
+    override fun handleMessage(msg: ShortMidiMessage) {
         when {
             msg.isNoteOn -> handleNote(msg.data1)
             msg.isControlChange -> handleControlChange(msg.data1, msg.data2)
@@ -46,7 +47,7 @@ class MidiHandler @Inject constructor(
         }
     }
 
-    fun handleSysexMessage(data: String) {
+    override fun handleSysexMessage(data: String) {
         host.println("sysex: ${data}")
         // MMC Transport Controls:
         when (data) {

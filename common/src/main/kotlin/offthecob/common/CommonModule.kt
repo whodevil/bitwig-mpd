@@ -1,4 +1,4 @@
-package offthecob.mpd
+package offthecob.common
 
 import com.bitwig.extension.controller.api.Application
 import com.bitwig.extension.controller.api.Arranger
@@ -8,14 +8,13 @@ import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import com.google.inject.Singleton
 
-class MpdModule(private val host: ControllerHost) : AbstractModule() {
+class CommonModule(private val host: ControllerHost) : AbstractModule() {
     override fun configure() {
-
     }
 
     @Provides
     @Singleton
-    fun application():Application {
+    fun application(): Application {
         return host.createApplication()
     }
 
