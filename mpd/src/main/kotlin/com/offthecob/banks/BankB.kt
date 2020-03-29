@@ -41,7 +41,7 @@ class BankB @Inject constructor(private val trackHandler: TrackHandler, private 
     }
 
     private val deleteClip: (clip: ClipLauncherSlot, track: Track) -> Unit = { clip, track ->
-        track.clipLauncherSlotBank().deleteClip(clip.sceneIndex().get())
+        track.clipLauncherSlotBank().getItemAt(clip.sceneIndex().get()).deleteObject()
     }
 
     private val playOrRecordClip: (clip: ClipLauncherSlot, track: Track) -> Unit = { clip, track ->
