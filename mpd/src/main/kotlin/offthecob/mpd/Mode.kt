@@ -1,4 +1,4 @@
-package com.offthecob
+package offthecob.mpd
 
 import com.bitwig.extension.controller.api.ControllerHost
 import com.google.inject.Inject

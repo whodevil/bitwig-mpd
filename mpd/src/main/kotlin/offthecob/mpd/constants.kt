@@ -1,4 +1,4 @@
-package com.offthecob
+package offthecob.mpd
 
 const val MPD_BAND_A: String = "f04700684000020601f7"
 const val MPD_BANK_B: String = "f04700684000020701f7"

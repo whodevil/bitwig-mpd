@@ -1,8 +1,8 @@
-package com.offthecob.banks
+package offthecob.mpd.banks
 
 import com.bitwig.extension.controller.api.Application
 import com.google.inject.Inject
-import com.offthecob.TrackHandler
+import offthecob.mpd.TrackHandler
 
 class BankA @Inject constructor(private val trackHandler: TrackHandler, private val application: Application) : MpdBank {
     override fun handle(note: Int) {

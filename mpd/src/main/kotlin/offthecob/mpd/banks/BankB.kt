@@ -1,10 +1,10 @@
-package com.offthecob.banks
+package offthecob.mpd.banks
 
 import com.bitwig.extension.controller.api.ClipLauncherSlot
 import com.bitwig.extension.controller.api.Track
-import com.offthecob.Mode
-import com.offthecob.Preview
-import com.offthecob.TrackHandler
+import offthecob.mpd.Mode
+import offthecob.mpd.Preview
+import offthecob.mpd.TrackHandler
 import javax.inject.Inject
 
 class BankB @Inject constructor(private val trackHandler: TrackHandler, private val mode: Mode): MpdBank {

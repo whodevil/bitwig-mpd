@@ -1,14 +1,14 @@
-package com.offthecob
+package offthecob.mpd
 
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.api.ControllerHost
 import com.bitwig.extension.controller.api.Transport
 import com.google.inject.Inject
-import com.offthecob.banks.BankA
-import com.offthecob.banks.BankB
-import com.offthecob.banks.BankC
-import com.offthecob.cc.DeviceCc
-import com.offthecob.cc.VolumeTrackSendsCc
+import offthecob.mpd.banks.BankA
+import offthecob.mpd.banks.BankB
+import offthecob.mpd.banks.BankC
+import offthecob.mpd.cc.DeviceCc
+import offthecob.mpd.cc.VolumeTrackSendsCc
 
 
 class MidiHandler @Inject constructor(
