@@ -1,7 +1,7 @@
-package com.offthecob.cc
+package offthecob.mpd.cc
 
 import com.google.inject.Inject
-import com.offthecob.*
+import offthecob.mpd.*
 
 class VolumeTrackSendsCc @Inject constructor(private val trackHandler: TrackHandler): ControlChange {
     override fun cc(note: Int, value: Int) {

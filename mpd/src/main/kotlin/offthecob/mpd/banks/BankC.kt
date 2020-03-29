@@ -1,8 +1,8 @@
-package com.offthecob.banks
+package offthecob.mpd.banks
 
 import com.bitwig.extension.controller.api.CursorRemoteControlsPage
 import com.bitwig.extension.controller.api.PinnableCursorDevice
-import com.offthecob.TrackHandler
+import offthecob.mpd.TrackHandler
 import javax.inject.Inject
 
 class BankC @Inject constructor(private val trackHandler: TrackHandler) : MpdBank {

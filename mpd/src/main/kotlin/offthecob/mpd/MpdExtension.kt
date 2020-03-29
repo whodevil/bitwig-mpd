@@ -1,4 +1,4 @@
-package com.offthecob
+package offthecob.mpd
 
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.callback.ShortMidiMessageReceivedCallback

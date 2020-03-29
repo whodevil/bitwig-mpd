@@ -1,4 +1,4 @@
-package com.offthecob.banks
+package offthecob.mpd.banks
 
 interface MpdBank {
     fun handle(note: Int)
