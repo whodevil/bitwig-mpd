@@ -5,6 +5,7 @@ import com.bitwig.extension.controller.api.ControllerHost
 import com.bitwig.extension.controller.api.Transport
 import com.google.inject.Inject
 import offthecob.common.MidiHandler
+import offthecob.common.NoteData
 import offthecob.mpd.banks.BankA
 import offthecob.mpd.banks.BankB
 import offthecob.mpd.banks.BankC
@@ -65,6 +66,10 @@ class MpdMidiHandler @Inject constructor(
             PREVIEW_PRESS -> mode.previewPressed()
             PREVIEW_RELEASE -> mode.previewRelease()
         }
+    }
+
+    override fun noteInput(): Array<NoteData> {
+        return arrayOf()
     }
 }
 
