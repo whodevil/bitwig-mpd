@@ -5,15 +5,6 @@ const val CHANNEL: String = "Channel"
 data class Channel(val hexString: String, val friendlyName: String)
 
 fun channels() = listOf<Channel>(
-        Channel("0", "$CHANNEL 1"),
-        Channel("1", "$CHANNEL 2"),
-        Channel("2", "$CHANNEL 3"),
-        Channel("3", "$CHANNEL 4"),
-        Channel("5", "$CHANNEL 6"),
-        Channel("6", "$CHANNEL 7"),
-        Channel("7", "$CHANNEL 8"),
-        Channel("8", "$CHANNEL 9"),
-        Channel("9", "$CHANNEL 10"),
         Channel("A", "$CHANNEL 11"),
         Channel("B", "$CHANNEL 12"),
         Channel("C", "$CHANNEL 13"),
