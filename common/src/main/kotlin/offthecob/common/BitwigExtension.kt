@@ -20,6 +20,12 @@ abstract class BitwigExtension(val definition: CommonExtensionDefinition, host: 
         })
 
         host.getMidiInPort(0).setSysexCallback { data: String -> midiHandler.handleSysexMessage(data) }
+        val noteInput = midiHandler.noteInput()
+        if(noteInput.isNotEmpty()) {
+            noteInput.forEach { noteData ->
+                host.getMidiInPort(0).createNoteInput(noteData.name, *noteData.mask)
+            }
+        }
         host.showPopupNotification("${definition.hardwareDefinition.friendlyName} Initialized")
     }
 
