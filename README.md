@@ -13,4 +13,4 @@ Dependencies
 extensions to be installed. On Windows, by default, this is `~/Documents/Bitwig\ Studio/Extensions`.
 
 To deploy the extension to Bitwig run the following command:
-- `./gradlew install`
+- `./gradlew <sub-project>:install` for example `./gradlew um-one:install`
