@@ -1,4 +1,4 @@
-include 'common', 'mpd', 'um-one'
+include 'common', 'mpd', 'um-one', 'midifighter-twister'
 
 rootProject.children.each { project ->
     project.buildFileName = "${project.name}.gradle"
