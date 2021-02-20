@@ -37,7 +37,7 @@ abstract class CommonExtensionDefinition(
     }
 
     override fun getRequiredAPIVersion(): Int {
-        return 9
+        return 12
     }
 
     override fun getNumMidiInPorts(): Int {
