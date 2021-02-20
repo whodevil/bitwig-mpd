@@ -6,7 +6,7 @@ import offthecob.common.*
 import java.util.*
 
 class TwisterExtensionDefinition : CommonExtensionDefinition(
-        "twister",
+        "midifighter-twister",
         "whodevil",
         UUID.fromString("d55aa17f-5317-4bb0-a8fe-65b81c41a168"),
         HardwareDefinition("DJ TechTools", "twister", "Midi Fighter Twister")
